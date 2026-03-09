@@ -1,0 +1,24 @@
+{
+  "val_metrics": [
+    {
+      "val/loss": 0.8174585103988647,
+      "val/CER": 19.760744094848633,
+      "val/IER": 3.588834762573242,
+      "val/DER": 2.6362428665161133,
+      "val/SER": 13.535666465759277
+    }
+  ],
+  "test_metrics": [
+    {
+      "test/loss": 0.9041467905044556,
+      "test/CER": 22.887399673461914,
+      "test/IER": 3.047330856323242,
+      "test/DER": 3.004106283187866,
+      "test/SER": 16.835962295532227
+    }
+  ],
+  "best_checkpoint": "/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job0_+experiment=fast,decoder=ctc_greedy,model=tds_conv_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=43-step=10560.ckpt",
+  "final_epoch_reached": 68,
+  "last_improvement_epoch": 44,
+  "last_improvement_delta": 0.48737335205078125
+}

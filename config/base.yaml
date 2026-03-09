@@ -13,6 +13,7 @@ batch_size: 32
 num_workers: 4  # Number of workers for dataloading
 train: True  # Whether to train or only run validation and test
 checkpoint: null  # Optional path to checkpoint file
+train_session_fraction: 1.0  # Fraction of train sessions to keep
 monitor_metric: val/CER
 monitor_mode: min
 
@@ -20,7 +21,7 @@ trainer:
   accelerator: gpu
   devices: 1
   num_nodes: 1
-  max_epochs: 150
+  max_epochs: 300
   default_root_dir: ${hydra:runtime.output_dir}
 
 callbacks:

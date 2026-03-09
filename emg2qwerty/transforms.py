@@ -96,6 +96,45 @@ class Compose:
 
 
 @dataclass
+class SelectEMGChannels:
+    """Select a fixed subset of EMG channels.
+
+    Assumes a tensor shape of (T, bands, channels) by default (from ``ToTensor``).
+    Set ``n_channels`` to ``None`` to keep all channels.
+    """
+
+    n_channels: int | None = None
+    channel_dim: int = -1
+
+    def __call__(self, tensor: torch.Tensor) -> torch.Tensor:
+        if self.n_channels is None:
+            return tensor
+
+        total_channels = tensor.shape[self.channel_dim]
+        if self.n_channels <= 0 or self.n_channels > total_channels:
+            raise ValueError(
+                f"n_channels must be in [1, {total_channels}], got {self.n_channels}"
+            )
+        return tensor.narrow(self.channel_dim, start=0, length=self.n_channels)
+
+
+@dataclass
+class TemporalDownsample:
+    """Downsample signal along the temporal axis by integer factor."""
+
+    factor: int = 1
+    time_dim: int = 0
+
+    def __post_init__(self) -> None:
+        assert self.factor >= 1
+
+    def __call__(self, tensor: torch.Tensor) -> torch.Tensor:
+        if self.factor == 1:
+            return tensor
+        return tensor[tuple(slice(None, None, self.factor) if i == self.time_dim else slice(None) for i in range(tensor.ndim))]
+
+
+@dataclass
 class RandomBandRotation:
     """Applies band rotation augmentation by shifting the electrode channels
     by an offset value randomly chosen from ``offsets``. By default, assumes

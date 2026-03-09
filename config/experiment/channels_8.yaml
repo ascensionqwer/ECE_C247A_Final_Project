@@ -1,0 +1,3 @@
+# @package _global_
+channel_select:
+  n_channels: 8

@@ -14,8 +14,11 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field, InitVar
 from typing import Any, ClassVar
 
-import kenlm
 import numpy as np
+try:
+    import kenlm
+except Exception:  # pragma: no cover - optional dependency for beam+LM decoding
+    kenlm = None  # type: ignore[assignment]
 
 from emg2qwerty.charset import CharacterSet, charset
 from emg2qwerty.data import LabelData
@@ -422,6 +425,11 @@ class CTCBeamDecoder(Decoder):
         # Initialize language model if provided
         self.lm: kenlm.Model | None = None
         if self.lm_path is not None:
+            if kenlm is None:
+                raise ImportError(
+                    "CTCBeamDecoder requires `kenlm`, but it is not installed. "
+                    "Install kenlm/camel-kenlm or use decoder=ctc_greedy."
+                )
             self.lm = kenlm.Model(self.lm_path)
 
             # KenLM state corresponding to beginning-of-sentence token <s>, but

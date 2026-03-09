@@ -1,0 +1,332 @@
+Global seed set to 1501
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+Missing logger folder: /mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/lightning_logs
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+/home/ahjc/miniconda3/envs/c247/lib/python3.11/site-packages/pl_bolts/__init__.py:11: FutureWarning: In the future `np.object` will be defined as the corresponding NumPy scalar.
+  if not hasattr(numpy, tp_name):
+/home/ahjc/miniconda3/envs/c247/lib/python3.11/site-packages/pl_bolts/__init__.py:11: FutureWarning: In the future `np.bool` will be defined as the corresponding NumPy scalar.
+  if not hasattr(numpy, tp_name):
+/home/ahjc/miniconda3/envs/c247/lib/python3.11/site-packages/pl_bolts/models/self_supervised/amdim/amdim_module.py:34: UnderReviewWarning: The feature generate_power_seq is currently marked under review. The compatibility with other Lightning projects is not guaranteed and API may change at any time. The API and functionality may change without warning in future releases. More details: https://lightning-bolts.readthedocs.io/en/latest/stability.html
+  "lr_options": generate_power_seq(LEARNING_RATE_CIFAR, 11),
+/home/ahjc/miniconda3/envs/c247/lib/python3.11/site-packages/pl_bolts/models/self_supervised/amdim/amdim_module.py:92: UnderReviewWarning: The feature FeatureMapContrastiveTask is currently marked under review. The compatibility with other Lightning projects is not guaranteed and API may change at any time. The API and functionality may change without warning in future releases. More details: https://lightning-bolts.readthedocs.io/en/latest/stability.html
+  contrastive_task: Union[FeatureMapContrastiveTask] = FeatureMapContrastiveTask("01, 02, 11"),
+/home/ahjc/miniconda3/envs/c247/lib/python3.11/site-packages/pl_bolts/losses/self_supervised_learning.py:228: UnderReviewWarning: The feature AmdimNCELoss is currently marked under review. The compatibility with other Lightning projects is not guaranteed and API may change at any time. The API and functionality may change without warning in future releases. More details: https://lightning-bolts.readthedocs.io/en/latest/stability.html
+  self.nce_loss = AmdimNCELoss(tclip)
+/home/ahjc/miniconda3/envs/c247/lib/python3.11/site-packages/hydra/_internal/instantiate/_instantiate2.py:92: UnderReviewWarning: The feature LinearWarmupCosineAnnealingLR is currently marked under review. The compatibility with other Lightning projects is not guaranteed and API may change at any time. The API and functionality may change without warning in future releases. More details: https://lightning-bolts.readthedocs.io/en/latest/stability.html
+  return _target_(*args, **kwargs)
+
+  | Name     | Type       | Params
+----------------------------------------
+0 | frontend | Sequential | 270 K 
+1 | rnn      | GRU        | 1.2 M 
+2 | output   | Sequential | 50.8 K
+3 | ctc_loss | CTCLoss    | 0     
+4 | metrics  | ModuleDict | 0     
+----------------------------------------
+1.5 M     Trainable params
+0         Non-trainable params
+1.5 M     Total params
+6.018     Total estimated model params size (MB)
+Epoch 0, global step 240: 'val/CER' reached 672.64069 (best 672.64069), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=0-step=240.ckpt' as top 1
+Epoch 1, global step 480: 'val/CER' reached 100.00000 (best 100.00000), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=1-step=480.ckpt' as top 1
+Epoch 2, global step 720: 'val/CER' was not in top 1
+Epoch 3, global step 960: 'val/CER' was not in top 1
+Epoch 4, global step 1200: 'val/CER' was not in top 1
+Epoch 5, global step 1440: 'val/CER' reached 97.78467 (best 97.78467), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=5-step=1440.ckpt' as top 1
+Epoch 6, global step 1680: 'val/CER' reached 87.39478 (best 87.39478), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=6-step=1680.ckpt' as top 1
+Epoch 7, global step 1920: 'val/CER' reached 60.92158 (best 60.92158), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=7-step=1920.ckpt' as top 1
+Epoch 8, global step 2160: 'val/CER' reached 55.40541 (best 55.40541), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=8-step=2160.ckpt' as top 1
+Epoch 9, global step 2400: 'val/CER' reached 47.51883 (best 47.51883), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=9-step=2400.ckpt' as top 1
+Epoch 10, global step 2640: 'val/CER' reached 43.35401 (best 43.35401), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=10-step=2640.ckpt' as top 1
+Epoch 11, global step 2880: 'val/CER' reached 42.99956 (best 42.99956), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=11-step=2880.ckpt' as top 1
+Epoch 12, global step 3120: 'val/CER' was not in top 1
+Epoch 13, global step 3360: 'val/CER' was not in top 1
+Epoch 14, global step 3600: 'val/CER' reached 39.98671 (best 39.98671), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=14-step=3600.ckpt' as top 1
+Epoch 15, global step 3840: 'val/CER' reached 38.32521 (best 38.32521), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=15-step=3840.ckpt' as top 1
+Epoch 16, global step 4080: 'val/CER' was not in top 1
+Epoch 17, global step 4320: 'val/CER' was not in top 1
+Epoch 18, global step 4560: 'val/CER' was not in top 1
+Epoch 19, global step 4800: 'val/CER' was not in top 1
+Epoch 20, global step 5040: 'val/CER' was not in top 1
+Epoch 21, global step 5280: 'val/CER' reached 37.74923 (best 37.74923), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=21-step=5280.ckpt' as top 1
+Epoch 22, global step 5520: 'val/CER' was not in top 1
+Epoch 23, global step 5760: 'val/CER' was not in top 1
+Epoch 24, global step 6000: 'val/CER' reached 34.44838 (best 34.44838), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=24-step=6000.ckpt' as top 1
+Epoch 25, global step 6240: 'val/CER' was not in top 1
+Epoch 26, global step 6480: 'val/CER' was not in top 1
+Epoch 27, global step 6720: 'val/CER' was not in top 1
+Epoch 28, global step 6960: 'val/CER' was not in top 1
+Epoch 29, global step 7200: 'val/CER' was not in top 1
+Epoch 30, global step 7440: 'val/CER' was not in top 1
+Epoch 31, global step 7680: 'val/CER' was not in top 1
+Epoch 32, global step 7920: 'val/CER' was not in top 1
+Epoch 33, global step 8160: 'val/CER' reached 32.94196 (best 32.94196), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=33-step=8160.ckpt' as top 1
+Epoch 34, global step 8400: 'val/CER' was not in top 1
+Epoch 35, global step 8640: 'val/CER' was not in top 1
+Epoch 36, global step 8880: 'val/CER' was not in top 1
+Epoch 37, global step 9120: 'val/CER' was not in top 1
+Epoch 38, global step 9360: 'val/CER' was not in top 1
+Epoch 39, global step 9600: 'val/CER' was not in top 1
+Epoch 40, global step 9840: 'val/CER' was not in top 1
+Epoch 41, global step 10080: 'val/CER' reached 31.70137 (best 31.70137), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=41-step=10080.ckpt' as top 1
+Epoch 42, global step 10320: 'val/CER' was not in top 1
+Epoch 43, global step 10560: 'val/CER' reached 31.28046 (best 31.28046), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=43-step=10560.ckpt' as top 1
+Epoch 44, global step 10800: 'val/CER' was not in top 1
+Epoch 45, global step 11040: 'val/CER' was not in top 1
+Epoch 46, global step 11280: 'val/CER' was not in top 1
+Epoch 47, global step 11520: 'val/CER' was not in top 1
+Epoch 48, global step 11760: 'val/CER' was not in top 1
+Epoch 49, global step 12000: 'val/CER' was not in top 1
+Epoch 50, global step 12240: 'val/CER' was not in top 1
+Epoch 51, global step 12480: 'val/CER' was not in top 1
+Epoch 52, global step 12720: 'val/CER' was not in top 1
+Epoch 53, global step 12960: 'val/CER' was not in top 1
+Epoch 54, global step 13200: 'val/CER' was not in top 1
+Epoch 55, global step 13440: 'val/CER' was not in top 1
+Epoch 56, global step 13680: 'val/CER' was not in top 1
+Epoch 57, global step 13920: 'val/CER' was not in top 1
+Epoch 58, global step 14160: 'val/CER' was not in top 1
+Epoch 59, global step 14400: 'val/CER' was not in top 1
+Epoch 60, global step 14640: 'val/CER' was not in top 1
+Epoch 61, global step 14880: 'val/CER' was not in top 1
+Epoch 62, global step 15120: 'val/CER' reached 30.92601 (best 30.92601), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=62-step=15120.ckpt' as top 1
+Epoch 63, global step 15360: 'val/CER' was not in top 1
+Epoch 64, global step 15600: 'val/CER' was not in top 1
+Epoch 65, global step 15840: 'val/CER' reached 30.19495 (best 30.19495), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=65-step=15840.ckpt' as top 1
+Epoch 66, global step 16080: 'val/CER' was not in top 1
+Epoch 67, global step 16320: 'val/CER' was not in top 1
+Epoch 68, global step 16560: 'val/CER' was not in top 1
+Epoch 69, global step 16800: 'val/CER' reached 29.90696 (best 29.90696), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=69-step=16800.ckpt' as top 1
+Epoch 70, global step 17040: 'val/CER' was not in top 1
+Epoch 71, global step 17280: 'val/CER' was not in top 1
+Epoch 72, global step 17520: 'val/CER' was not in top 1
+Epoch 73, global step 17760: 'val/CER' was not in top 1
+Epoch 74, global step 18000: 'val/CER' was not in top 1
+Epoch 75, global step 18240: 'val/CER' was not in top 1
+Epoch 76, global step 18480: 'val/CER' was not in top 1
+Epoch 77, global step 18720: 'val/CER' was not in top 1
+Epoch 78, global step 18960: 'val/CER' was not in top 1
+Epoch 79, global step 19200: 'val/CER' was not in top 1
+Epoch 80, global step 19440: 'val/CER' was not in top 1
+Epoch 81, global step 19680: 'val/CER' was not in top 1
+Epoch 82, global step 19920: 'val/CER' was not in top 1
+Epoch 83, global step 20160: 'val/CER' was not in top 1
+Epoch 84, global step 20400: 'val/CER' was not in top 1
+Epoch 85, global step 20640: 'val/CER' was not in top 1
+Epoch 86, global step 20880: 'val/CER' was not in top 1
+Epoch 87, global step 21120: 'val/CER' was not in top 1
+Epoch 88, global step 21360: 'val/CER' was not in top 1
+Epoch 89, global step 21600: 'val/CER' was not in top 1
+Epoch 90, global step 21840: 'val/CER' reached 29.50820 (best 29.50820), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=90-step=21840.ckpt' as top 1
+Epoch 91, global step 22080: 'val/CER' was not in top 1
+Epoch 92, global step 22320: 'val/CER' was not in top 1
+Epoch 93, global step 22560: 'val/CER' was not in top 1
+Epoch 94, global step 22800: 'val/CER' was not in top 1
+Epoch 95, global step 23040: 'val/CER' was not in top 1
+Epoch 96, global step 23280: 'val/CER' was not in top 1
+Epoch 97, global step 23520: 'val/CER' was not in top 1
+Epoch 98, global step 23760: 'val/CER' was not in top 1
+Epoch 99, global step 24000: 'val/CER' was not in top 1
+Epoch 100, global step 24240: 'val/CER' was not in top 1
+Epoch 101, global step 24480: 'val/CER' was not in top 1
+Epoch 102, global step 24720: 'val/CER' was not in top 1
+Epoch 103, global step 24960: 'val/CER' was not in top 1
+Epoch 104, global step 25200: 'val/CER' was not in top 1
+Epoch 105, global step 25440: 'val/CER' was not in top 1
+Epoch 106, global step 25680: 'val/CER' was not in top 1
+Epoch 107, global step 25920: 'val/CER' was not in top 1
+Epoch 108, global step 26160: 'val/CER' reached 28.26761 (best 28.26761), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=108-step=26160.ckpt' as top 1
+Epoch 109, global step 26400: 'val/CER' was not in top 1
+Epoch 110, global step 26640: 'val/CER' was not in top 1
+Epoch 111, global step 26880: 'val/CER' was not in top 1
+Epoch 112, global step 27120: 'val/CER' reached 27.91316 (best 27.91316), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=112-step=27120.ckpt' as top 1
+Epoch 113, global step 27360: 'val/CER' was not in top 1
+Epoch 114, global step 27600: 'val/CER' was not in top 1
+Epoch 115, global step 27840: 'val/CER' was not in top 1
+Epoch 116, global step 28080: 'val/CER' was not in top 1
+Epoch 117, global step 28320: 'val/CER' was not in top 1
+Epoch 118, global step 28560: 'val/CER' was not in top 1
+Epoch 119, global step 28800: 'val/CER' was not in top 1
+Epoch 120, global step 29040: 'val/CER' was not in top 1
+Epoch 121, global step 29280: 'val/CER' was not in top 1
+Epoch 122, global step 29520: 'val/CER' reached 27.64732 (best 27.64732), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=122-step=29520.ckpt' as top 1
+Epoch 123, global step 29760: 'val/CER' was not in top 1
+Epoch 124, global step 30000: 'val/CER' was not in top 1
+Epoch 125, global step 30240: 'val/CER' was not in top 1
+Epoch 126, global step 30480: 'val/CER' was not in top 1
+Epoch 127, global step 30720: 'val/CER' was not in top 1
+Epoch 128, global step 30960: 'val/CER' was not in top 1
+Epoch 129, global step 31200: 'val/CER' was not in top 1
+Epoch 130, global step 31440: 'val/CER' was not in top 1
+Epoch 131, global step 31680: 'val/CER' was not in top 1
+Epoch 132, global step 31920: 'val/CER' reached 27.02703 (best 27.02703), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=132-step=31920.ckpt' as top 1
+Epoch 133, global step 32160: 'val/CER' was not in top 1
+Epoch 134, global step 32400: 'val/CER' was not in top 1
+Epoch 135, global step 32640: 'val/CER' reached 26.25166 (best 26.25166), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=135-step=32640.ckpt' as top 1
+Epoch 136, global step 32880: 'val/CER' was not in top 1
+Epoch 137, global step 33120: 'val/CER' was not in top 1
+Epoch 138, global step 33360: 'val/CER' was not in top 1
+Epoch 139, global step 33600: 'val/CER' was not in top 1
+Epoch 140, global step 33840: 'val/CER' reached 25.74214 (best 25.74214), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=140-step=33840.ckpt' as top 1
+Epoch 141, global step 34080: 'val/CER' was not in top 1
+Epoch 142, global step 34320: 'val/CER' was not in top 1
+Epoch 143, global step 34560: 'val/CER' was not in top 1
+Epoch 144, global step 34800: 'val/CER' was not in top 1
+Epoch 145, global step 35040: 'val/CER' was not in top 1
+Epoch 146, global step 35280: 'val/CER' was not in top 1
+Epoch 147, global step 35520: 'val/CER' was not in top 1
+Epoch 148, global step 35760: 'val/CER' was not in top 1
+Epoch 149, global step 36000: 'val/CER' was not in top 1
+Epoch 150, global step 36240: 'val/CER' was not in top 1
+Epoch 151, global step 36480: 'val/CER' was not in top 1
+Epoch 152, global step 36720: 'val/CER' was not in top 1
+Epoch 153, global step 36960: 'val/CER' was not in top 1
+Epoch 154, global step 37200: 'val/CER' was not in top 1
+Epoch 155, global step 37440: 'val/CER' was not in top 1
+Epoch 156, global step 37680: 'val/CER' was not in top 1
+Epoch 157, global step 37920: 'val/CER' reached 24.39078 (best 24.39078), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=157-step=37920.ckpt' as top 1
+Epoch 158, global step 38160: 'val/CER' was not in top 1
+Epoch 159, global step 38400: 'val/CER' was not in top 1
+Epoch 160, global step 38640: 'val/CER' was not in top 1
+Epoch 161, global step 38880: 'val/CER' was not in top 1
+Epoch 162, global step 39120: 'val/CER' was not in top 1
+Epoch 163, global step 39360: 'val/CER' was not in top 1
+Epoch 164, global step 39600: 'val/CER' was not in top 1
+Epoch 165, global step 39840: 'val/CER' was not in top 1
+Epoch 166, global step 40080: 'val/CER' was not in top 1
+Epoch 167, global step 40320: 'val/CER' was not in top 1
+Epoch 168, global step 40560: 'val/CER' was not in top 1
+Epoch 169, global step 40800: 'val/CER' was not in top 1
+Epoch 170, global step 41040: 'val/CER' was not in top 1
+Epoch 171, global step 41280: 'val/CER' was not in top 1
+Epoch 172, global step 41520: 'val/CER' was not in top 1
+Epoch 173, global step 41760: 'val/CER' was not in top 1
+Epoch 174, global step 42000: 'val/CER' was not in top 1
+Epoch 175, global step 42240: 'val/CER' was not in top 1
+Epoch 176, global step 42480: 'val/CER' was not in top 1
+Epoch 177, global step 42720: 'val/CER' was not in top 1
+Epoch 178, global step 42960: 'val/CER' was not in top 1
+Epoch 179, global step 43200: 'val/CER' was not in top 1
+Epoch 180, global step 43440: 'val/CER' reached 23.68188 (best 23.68188), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=180-step=43440.ckpt' as top 1
+Epoch 181, global step 43680: 'val/CER' was not in top 1
+Epoch 182, global step 43920: 'val/CER' was not in top 1
+Epoch 183, global step 44160: 'val/CER' was not in top 1
+Epoch 184, global step 44400: 'val/CER' was not in top 1
+Epoch 185, global step 44640: 'val/CER' was not in top 1
+Epoch 186, global step 44880: 'val/CER' was not in top 1
+Epoch 187, global step 45120: 'val/CER' was not in top 1
+Epoch 188, global step 45360: 'val/CER' was not in top 1
+Epoch 189, global step 45600: 'val/CER' was not in top 1
+Epoch 190, global step 45840: 'val/CER' was not in top 1
+Epoch 191, global step 46080: 'val/CER' was not in top 1
+Epoch 192, global step 46320: 'val/CER' was not in top 1
+Epoch 193, global step 46560: 'val/CER' was not in top 1
+Epoch 194, global step 46800: 'val/CER' was not in top 1
+Epoch 195, global step 47040: 'val/CER' reached 23.37173 (best 23.37173), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=195-step=47040.ckpt' as top 1
+Epoch 196, global step 47280: 'val/CER' was not in top 1
+Epoch 197, global step 47520: 'val/CER' was not in top 1
+Epoch 198, global step 47760: 'val/CER' was not in top 1
+Epoch 199, global step 48000: 'val/CER' was not in top 1
+Epoch 200, global step 48240: 'val/CER' reached 22.88436 (best 22.88436), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=200-step=48240.ckpt' as top 1
+Epoch 201, global step 48480: 'val/CER' was not in top 1
+Epoch 202, global step 48720: 'val/CER' was not in top 1
+Epoch 203, global step 48960: 'val/CER' was not in top 1
+Epoch 204, global step 49200: 'val/CER' was not in top 1
+Epoch 205, global step 49440: 'val/CER' was not in top 1
+Epoch 206, global step 49680: 'val/CER' was not in top 1
+Epoch 207, global step 49920: 'val/CER' was not in top 1
+Epoch 208, global step 50160: 'val/CER' was not in top 1
+Epoch 209, global step 50400: 'val/CER' was not in top 1
+Epoch 210, global step 50640: 'val/CER' was not in top 1
+Epoch 211, global step 50880: 'val/CER' was not in top 1
+Epoch 212, global step 51120: 'val/CER' was not in top 1
+Epoch 213, global step 51360: 'val/CER' was not in top 1
+Epoch 214, global step 51600: 'val/CER' was not in top 1
+Epoch 215, global step 51840: 'val/CER' was not in top 1
+Epoch 216, global step 52080: 'val/CER' was not in top 1
+Epoch 217, global step 52320: 'val/CER' reached 22.84005 (best 22.84005), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=217-step=52320.ckpt' as top 1
+Epoch 218, global step 52560: 'val/CER' was not in top 1
+Epoch 219, global step 52800: 'val/CER' was not in top 1
+Epoch 220, global step 53040: 'val/CER' was not in top 1
+Epoch 221, global step 53280: 'val/CER' reached 22.61852 (best 22.61852), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=221-step=53280.ckpt' as top 1
+Epoch 222, global step 53520: 'val/CER' reached 22.52991 (best 22.52991), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=222-step=53520.ckpt' as top 1
+Epoch 223, global step 53760: 'val/CER' was not in top 1
+Epoch 224, global step 54000: 'val/CER' was not in top 1
+Epoch 225, global step 54240: 'val/CER' was not in top 1
+Epoch 226, global step 54480: 'val/CER' was not in top 1
+Epoch 227, global step 54720: 'val/CER' was not in top 1
+Epoch 228, global step 54960: 'val/CER' was not in top 1
+Epoch 229, global step 55200: 'val/CER' was not in top 1
+Epoch 230, global step 55440: 'val/CER' was not in top 1
+Epoch 231, global step 55680: 'val/CER' was not in top 1
+Epoch 232, global step 55920: 'val/CER' reached 22.13115 (best 22.13115), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=232-step=55920.ckpt' as top 1
+Epoch 233, global step 56160: 'val/CER' was not in top 1
+Epoch 234, global step 56400: 'val/CER' was not in top 1
+Epoch 235, global step 56640: 'val/CER' was not in top 1
+Epoch 236, global step 56880: 'val/CER' was not in top 1
+Epoch 237, global step 57120: 'val/CER' was not in top 1
+Epoch 238, global step 57360: 'val/CER' reached 21.90961 (best 21.90961), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=238-step=57360.ckpt' as top 1
+Epoch 239, global step 57600: 'val/CER' was not in top 1
+Epoch 240, global step 57840: 'val/CER' was not in top 1
+Epoch 241, global step 58080: 'val/CER' was not in top 1
+Epoch 242, global step 58320: 'val/CER' was not in top 1
+Epoch 243, global step 58560: 'val/CER' was not in top 1
+Epoch 244, global step 58800: 'val/CER' was not in top 1
+Epoch 245, global step 59040: 'val/CER' was not in top 1
+Epoch 246, global step 59280: 'val/CER' reached 21.62162 (best 21.62162), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=246-step=59280.ckpt' as top 1
+Epoch 247, global step 59520: 'val/CER' was not in top 1
+Epoch 248, global step 59760: 'val/CER' was not in top 1
+Epoch 249, global step 60000: 'val/CER' was not in top 1
+Epoch 250, global step 60240: 'val/CER' reached 21.57731 (best 21.57731), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=250-step=60240.ckpt' as top 1
+Epoch 251, global step 60480: 'val/CER' was not in top 1
+Epoch 252, global step 60720: 'val/CER' was not in top 1
+Epoch 253, global step 60960: 'val/CER' was not in top 1
+Epoch 254, global step 61200: 'val/CER' reached 21.40009 (best 21.40009), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=254-step=61200.ckpt' as top 1
+Epoch 255, global step 61440: 'val/CER' was not in top 1
+Epoch 256, global step 61680: 'val/CER' was not in top 1
+Epoch 257, global step 61920: 'val/CER' was not in top 1
+Epoch 258, global step 62160: 'val/CER' was not in top 1
+Epoch 259, global step 62400: 'val/CER' was not in top 1
+Epoch 260, global step 62640: 'val/CER' was not in top 1
+Epoch 261, global step 62880: 'val/CER' was not in top 1
+Epoch 262, global step 63120: 'val/CER' reached 21.11209 (best 21.11209), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=262-step=63120.ckpt' as top 1
+Epoch 263, global step 63360: 'val/CER' was not in top 1
+Epoch 264, global step 63600: 'val/CER' was not in top 1
+Epoch 265, global step 63840: 'val/CER' was not in top 1
+Epoch 266, global step 64080: 'val/CER' was not in top 1
+Epoch 267, global step 64320: 'val/CER' was not in top 1
+Epoch 268, global step 64560: 'val/CER' was not in top 1
+Epoch 269, global step 64800: 'val/CER' was not in top 1
+Epoch 270, global step 65040: 'val/CER' was not in top 1
+Epoch 271, global step 65280: 'val/CER' was not in top 1
+Epoch 272, global step 65520: 'val/CER' reached 21.08994 (best 21.08994), saving model to '/mnt/c/Users/ahjc/documents/coding/ecec247/Final_project/ECE_C247A_Final_Project/logs/2026-03-08/03-36-27/job1_+experiment=fast,decoder=ctc_greedy,model=gru_ctc,trainer.devices=1,user=single_user/checkpoints/epoch=272-step=65520.ckpt' as top 1
+Epoch 273, global step 65760: 'val/CER' was not in top 1
+Epoch 274, global step 66000: 'val/CER' was not in top 1
+Epoch 275, global step 66240: 'val/CER' was not in top 1
+Epoch 276, global step 66480: 'val/CER' was not in top 1
+Epoch 277, global step 66720: 'val/CER' was not in top 1
+Epoch 278, global step 66960: 'val/CER' was not in top 1
+Epoch 279, global step 67200: 'val/CER' was not in top 1
+Epoch 280, global step 67440: 'val/CER' was not in top 1
+Epoch 281, global step 67680: 'val/CER' was not in top 1
+Epoch 282, global step 67920: 'val/CER' was not in top 1
+Epoch 283, global step 68160: 'val/CER' was not in top 1
+Epoch 284, global step 68400: 'val/CER' was not in top 1
+Epoch 285, global step 68640: 'val/CER' was not in top 1
+Epoch 286, global step 68880: 'val/CER' was not in top 1
+Epoch 287, global step 69120: 'val/CER' was not in top 1
+Epoch 288, global step 69360: 'val/CER' was not in top 1
+Epoch 289, global step 69600: 'val/CER' was not in top 1
+Epoch 290, global step 69840: 'val/CER' was not in top 1
+Epoch 291, global step 70080: 'val/CER' was not in top 1
+Epoch 292, global step 70320: 'val/CER' was not in top 1
+Epoch 293, global step 70560: 'val/CER' was not in top 1
+Epoch 294, global step 70800: 'val/CER' was not in top 1
+Epoch 295, global step 71040: 'val/CER' was not in top 1
+Epoch 296, global step 71280: 'val/CER' was not in top 1
+Epoch 297, global step 71520: 'val/CER' was not in top 1
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]

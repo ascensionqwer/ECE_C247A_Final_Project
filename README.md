@@ -15,6 +15,130 @@ _Last updated 2/13/2025_
     - **Q: How do we update these configuration files?** A: Note the structure of YAML files include basic key-value pairs (i.e. ```<key>: <value>```) and hierarchical structure. So, for instance, if we wanted to update the ```mlp_features``` hyperparameter of the ```TDSConvCTCModule```, we would change the value at line 5 of ```config/model/tds_conv_ctc.yaml``` (under ```module```). _Read more details [here](https://pytorch-lightning.readthedocs.io/en/1.3.8/common/lightning_cli.html)._
     - **Q: Where do we configure data splitting?** A: Refer to ```config/user/single_user.yaml```. Be careful with your edits, so that you don't accidentally move the test data into your training set.
 
+## Baseline Project Quickstart (single user 89335547)
+
+The model is swappable through Hydra. `emg2qwerty/train.py` instantiates `config.module`,
+so you can switch architectures by changing `model=<name>`.
+
+### Fast recurrent baseline (GRU + CTC)
+
+Use this as the fastest "does it work?" recurrent architecture:
+
+```shell
+python -m emg2qwerty.train \
+  user=single_user \
+  model=gru_ctc \
+  decoder=ctc_greedy \
+  +experiment=fast \
+  trainer.accelerator=gpu trainer.devices=1
+```
+
+### Compare architecture (existing TDS vs GRU)
+
+```shell
+python -m emg2qwerty.train \
+  user=single_user \
+  model=tds_conv_ctc \
+  decoder=ctc_greedy \
+  +experiment=fast \
+  trainer.accelerator=gpu trainer.devices=1
+```
+
+```shell
+python -m emg2qwerty.train \
+  user=single_user \
+  model=gru_ctc \
+  decoder=ctc_greedy \
+  +experiment=fast \
+  trainer.accelerator=gpu trainer.devices=1
+```
+
+### Additional archetypes (LSTM + CNN-RNN)
+
+The following models can be selected with `model=<name>`:
+
+- `tds_conv_ctc` (original): rotation-invariant spectrogram frontend + TDS temporal blocks.
+- `gru_ctc`: same frontend + GRU temporal encoder.
+- `lstm_ctc`: same frontend + LSTM temporal encoder.
+- `cnn_rnn_ctc`: same frontend + temporal 1D conv stack + GRU tail.
+
+```mermaid
+flowchart LR
+  emgInput["EMGWindow(T,bands,channels)"] --> frontEnd["SpectrogramNorm+RotationInvariantMLP"]
+  frontEnd --> tdsPath["TDSEncoder"]
+  frontEnd --> gruPath["GRUEncoder"]
+  frontEnd --> lstmPath["LSTMEncoder"]
+  frontEnd --> hybridConv["TemporalConvStack"]
+  hybridConv --> hybridRnn["GRUTail"]
+  tdsPath --> ctcHead["Linear+LogSoftmax+CTC"]
+  gruPath --> ctcHead
+  lstmPath --> ctcHead
+  hybridRnn --> ctcHead
+  ctcHead --> decode["Greedy_or_Beam_Decode"]
+  decode --> metrics["CER/IER/DER/SER"]
+```
+
+Expected impact:
+
+- `tds_conv_ctc`: strong local temporal modeling, often robust but can be heavier.
+- `gru_ctc`: fastest recurrent baseline with lower parameter count than LSTM.
+- `lstm_ctc`: can capture longer dependencies better than GRU, but higher runtime/memory.
+- `cnn_rnn_ctc`: conv layers improve local pattern extraction/noise handling; RNN handles longer context.
+
+Run commands:
+
+```shell
+python -m emg2qwerty.train user=single_user model=lstm_ctc decoder=ctc_greedy +experiment=fast trainer.accelerator=gpu trainer.devices=1
+python -m emg2qwerty.train user=single_user model=cnn_rnn_ctc decoder=ctc_greedy +experiment=fast trainer.accelerator=gpu trainer.devices=1
+```
+
+Quick model sweep:
+
+```shell
+python -m emg2qwerty.train user=single_user model=tds_conv_ctc,gru_ctc,lstm_ctc,cnn_rnn_ctc decoder=ctc_greedy +experiment=fast trainer.accelerator=gpu trainer.devices=1 --multirun
+```
+
+### Required ablations (minimal commands)
+
+Preprocessing / augmentation:
+
+```shell
+python -m emg2qwerty.train user=single_user model=gru_ctc +experiment=fast +experiment=aug_logspec_only
+python -m emg2qwerty.train user=single_user model=gru_ctc +experiment=fast +experiment=aug_logspec_specaug
+```
+
+Number of channels per wrist:
+
+```shell
+python -m emg2qwerty.train user=single_user model=gru_ctc +experiment=fast channel_select.n_channels=16
+python -m emg2qwerty.train user=single_user model=gru_ctc +experiment=fast +experiment=channels_8
+python -m emg2qwerty.train user=single_user model=gru_ctc +experiment=fast +experiment=channels_4
+```
+
+Amount of training data:
+
+```shell
+python -m emg2qwerty.train user=single_user model=gru_ctc +experiment=fast train_session_fraction=1.0
+python -m emg2qwerty.train user=single_user model=gru_ctc +experiment=fast +experiment=train_frac_50
+python -m emg2qwerty.train user=single_user model=gru_ctc +experiment=fast +experiment=train_frac_25
+```
+
+Sampling-rate sensitivity (effective downsampling):
+
+```shell
+python -m emg2qwerty.train user=single_user model=gru_ctc +experiment=fast downsample.factor=1
+python -m emg2qwerty.train user=single_user model=gru_ctc +experiment=fast +experiment=downsample_2x
+python -m emg2qwerty.train user=single_user model=gru_ctc +experiment=fast +experiment=downsample_4x
+```
+
+### Aggregate results
+
+Each run now writes `results.json` in its Hydra output directory.
+
+```shell
+python scripts/summarize_runs.py --logs-dir logs --output-csv logs/summary.csv --plot logs/summary.png
+```
+
 # emg2qwerty
 [ [`Paper`](https://arxiv.org/abs/2410.20081) ] [ [`Dataset`](https://fb-ctrl-oss.s3.amazonaws.com/emg2qwerty/emg2qwerty-data-2021-08.tar.gz) ] [ [`Blog`](https://ai.meta.com/blog/open-sourcing-surface-electromyography-datasets-neurips-2024/) ] [ [`BibTeX`](#citing-emg2qwerty) ]
 

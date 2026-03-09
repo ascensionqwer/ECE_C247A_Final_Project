@@ -43,7 +43,7 @@ dmypy.json
 .hypothesis
 
 # Logs and checkpoints
-logs/
+logs
 lightning_logs/
 
 # Data
@@ -53,3 +53,7 @@ bids_data
 
 # LM
 wikitext-103-raw*
+
+# Dataset
+emg2qwerty-*
+emg2qwerty.egg*
