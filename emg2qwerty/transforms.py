@@ -243,3 +243,72 @@ class SpecAugment:
 
         # (..., C, freq, T) -> (T, ..., C, freq)
         return x.movedim(-1, 0)
+
+
+# ============================================================================
+# Below is the Modified transforms.py code. The above is the original transforms.py unchanged.
+# ============================================================================
+
+@dataclass
+class AddGaussianNoise:
+    """Add Gaussian noise to EMG signals for data augmentation.
+    
+    Args:
+        std: Standard deviation of the Gaussian noise
+    """
+    
+    std: float = 0.1
+    
+    def __call__(self, emg_data: torch.Tensor) -> torch.Tensor:
+        noise = torch.randn_like(emg_data) * self.std
+        return emg_data + noise
+
+
+@dataclass
+class SelectChannels:
+    """Select subset of electrode channels for ablation study.
+    
+    Args:
+        channels: Tuple of channel indices to keep
+    """
+    
+    channels: tuple = (0, 1, 2, 3, 4, 5, 6, 7)
+    
+    def __call__(self, emg_data: torch.Tensor) -> torch.Tensor:
+        # Input from ToTensor: (T, bands, C) where bands=2, C=16
+        # We want to select channels from the last dimension
+        if emg_data.dim() == 3:
+            # (T, bands, C) -> select channels
+            return emg_data[:, :, self.channels]
+        return emg_data
+
+
+@dataclass
+class Downsample:
+    """Downsample EMG signal to lower sampling rate.
+    
+    Args:
+        factor: Downsampling factor (2 = reduce from 2kHz to 1kHz)
+    """
+    
+    factor: int = 2
+    
+    def __call__(self, emg_data: torch.Tensor) -> torch.Tensor:
+        # Downsample along time axis (first dimension)
+        return emg_data[::self.factor, ...]
+
+
+@dataclass
+class RandomChannelDropout:
+    """Randomly drop electrode channels during training.
+    
+    Args:
+        drop_prob: Probability of dropping each channel
+    """
+    
+    drop_prob: float = 0.1
+    
+    def __call__(self, emg_data: torch.Tensor) -> torch.Tensor:
+        mask = torch.rand(emg_data.shape[-2], 1, 1, 1, 1) > self.drop_prob
+        mask = mask.to(emg_data.device)
+        return emg_data * mask

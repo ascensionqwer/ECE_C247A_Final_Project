@@ -21,11 +21,23 @@ from emg2qwerty import utils
 from emg2qwerty.charset import charset
 from emg2qwerty.data import LabelData, WindowedEMGDataset
 from emg2qwerty.metrics import CharacterErrorRates
+
+# from emg2qwerty.modules import (
+#     MultiBandRotationInvariantMLP,
+#     SpectrogramNorm,
+#     TDSConvEncoder,
+# )
+
+# Modified Import here
 from emg2qwerty.modules import (
     MultiBandRotationInvariantMLP,
     SpectrogramNorm,
     TDSConvEncoder,
+    LSTMEncoder,
+    GRUEncoder,
+    CNNLSTMEncoder,
 )
+
 from emg2qwerty.transforms import Transform
 
 
@@ -269,3 +281,333 @@ class TDSConvCTCModule(pl.LightningModule):
             optimizer_config=self.hparams.optimizer,
             lr_scheduler_config=self.hparams.lr_scheduler,
         )
+
+# ============================================================================
+# Below is the Modified lightning.py code. The above is the original lightning.py unchanged.
+# ============================================================================
+
+class LSTMCTCModule(pl.LightningModule):
+    """LSTM-based CTC model for EMG-to-keystroke prediction."""
+    
+    NUM_BANDS: ClassVar[int] = 2
+    
+    def __init__(
+        self,
+        in_features: int,
+        hidden_size: int = 256,
+        num_layers: int = 2,
+        dropout: float = 0.3,
+        electrode_channels: int = 16,
+        optimizer: DictConfig = None,
+        lr_scheduler: DictConfig = None,
+        decoder: DictConfig = None,
+    ) -> None:
+        super().__init__()
+        self.save_hyperparameters()
+        
+        self.spectrogram_norm = SpectrogramNorm(self.NUM_BANDS * electrode_channels)
+        
+        self.encoder = LSTMEncoder(
+            in_features=in_features,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            dropout=dropout,
+        )
+       
+        self.classifier = nn.Linear(hidden_size, charset().num_classes)
+        self.ctc_loss = nn.CTCLoss(blank=charset().null_class)
+       
+        self.metrics = nn.ModuleDict({
+            "train_metrics": CharacterErrorRates(),
+            "val_metrics": CharacterErrorRates(),
+            "test_metrics": CharacterErrorRates(),
+        })
+       
+        self.optimizer = optimizer
+        self.lr_scheduler = lr_scheduler
+        # Instantiate decoder from DictConfig
+        self.decoder = instantiate(decoder) if decoder is not None else None
+    
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        x = self.spectrogram_norm(inputs)
+        x = self.encoder(x)
+        return self.classifier(x)
+    
+    def _step(self, batch: dict, stage: str) -> torch.Tensor:
+        emg = batch["inputs"]
+        emg_lengths = batch["input_lengths"]
+        labels = batch["targets"]  # (T, N) - time first, batch second
+        label_lengths = batch["target_lengths"]
+        
+        logits = self(emg)  # (T, N, num_classes)
+        T, N, num_classes = logits.shape
+        
+        log_probs = nn.functional.log_softmax(logits, dim=-1)
+        
+        # CTCLoss expects targets of shape (N, S) where N is batch and S is max target length
+        # But our labels are (T, N), so we need to transpose to (N, T)
+        # Also need to use label_lengths for the actual target lengths
+        loss = self.ctc_loss(
+            log_probs,  # (T, N, num_classes)
+            labels.transpose(0, 1),  # (N, T) - transpose for CTCLoss
+            emg_lengths,  # (N,) - input lengths
+            label_lengths,  # (N,) - target lengths
+        )
+        
+        # Compute metrics using the decoder
+        metrics_module = self.metrics[f"{stage}_metrics"]
+        
+        # Decode predictions for metrics
+        predictions = self.decoder.decode_batch(
+            emissions=logits.detach().cpu().numpy(),
+            emission_lengths=emg_lengths.detach().cpu().numpy(),
+        )
+        
+        # Update metrics with predictions and targets
+        labels_cpu = labels.detach().cpu().numpy()
+        label_lengths_cpu = label_lengths.detach().cpu().numpy()
+        for i in range(N):
+            from emg2qwerty.data import LabelData
+            target = LabelData.from_labels(labels_cpu[:label_lengths_cpu[i], i])
+            metrics_module.update(prediction=predictions[i], target=target)
+        
+        self.log(f"{stage}/loss", loss, on_step=stage == "train", on_epoch=True, sync_dist=True)
+        for name, value in metrics_module.compute().items():
+            self.log(f"{stage}/{name}", value, on_step=stage == "train", on_epoch=True, sync_dist=True)
+        
+        return loss
+    
+    def training_step(self, batch, batch_idx):
+        return self._step(batch, "train")
+    
+    def validation_step(self, batch, batch_idx):
+        return self._step(batch, "val")
+    
+    def test_step(self, batch, batch_idx):
+        return self._step(batch, "test")
+    
+    def configure_optimizers(self):
+        optimizer = instantiate(self.optimizer, self.parameters())
+        if self.lr_scheduler is not None:
+            scheduler = instantiate(self.lr_scheduler.scheduler, optimizer=optimizer)
+            return {"optimizer": optimizer, "lr_scheduler": scheduler}
+        return optimizer
+
+
+class GRUCTCModule(pl.LightningModule):
+    """GRU-based CTC model for EMG-to-keystroke prediction."""
+    
+    NUM_BANDS: ClassVar[int] = 2
+    
+    def __init__(
+        self,
+        in_features: int,
+        hidden_size: int = 256,
+        num_layers: int = 2,
+        dropout: float = 0.3,
+        electrode_channels: int = 16,
+        optimizer: DictConfig = None,
+        lr_scheduler: DictConfig = None,
+        decoder: DictConfig = None,
+    ) -> None:
+        super().__init__()
+        self.save_hyperparameters()
+        
+        self.spectrogram_norm = SpectrogramNorm(self.NUM_BANDS * electrode_channels)
+        
+        self.encoder = GRUEncoder(
+            in_features=in_features,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            dropout=dropout,
+        )
+        
+        self.classifier = nn.Linear(hidden_size, charset().num_classes)
+        self.ctc_loss = nn.CTCLoss(blank=charset().null_class)
+
+        
+        self.metrics = nn.ModuleDict({
+            "train_metrics": CharacterErrorRates(),
+            "val_metrics": CharacterErrorRates(),
+            "test_metrics": CharacterErrorRates(),
+        })
+        
+        self.optimizer = optimizer
+        self.lr_scheduler = lr_scheduler
+        # Instantiate decoder from DictConfig
+        self.decoder = instantiate(decoder) if decoder is not None else None
+    
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        x = self.spectrogram_norm(inputs)
+        x = self.encoder(x)
+        return self.classifier(x)
+    
+    def _step(self, batch: dict, stage: str) -> torch.Tensor:
+        emg = batch["inputs"]
+        emg_lengths = batch["input_lengths"]
+        labels = batch["targets"]  # (T, N) - time first, batch second
+        label_lengths = batch["target_lengths"]
+        
+        logits = self(emg)  # (T, N, num_classes)
+        T, N, num_classes = logits.shape
+        
+        log_probs = nn.functional.log_softmax(logits, dim=-1)
+        
+        # CTCLoss expects targets of shape (N, S) where N is batch and S is max target length
+        # But our labels are (T, N), so we need to transpose to (N, T)
+        loss = self.ctc_loss(
+            log_probs,  # (T, N, num_classes)
+            labels.transpose(0, 1),  # (N, T) - transpose for CTCLoss
+            emg_lengths,  # (N,) - input lengths
+            label_lengths,  # (N,) - target lengths
+        )
+        
+        # Compute metrics using the decoder
+        metrics_module = self.metrics[f"{stage}_metrics"]
+        
+        # Decode predictions for metrics
+        predictions = self.decoder.decode_batch(
+            emissions=logits.detach().cpu().numpy(),
+            emission_lengths=emg_lengths.detach().cpu().numpy(),
+        )
+        
+        # Update metrics with predictions and targets
+        labels_cpu = labels.detach().cpu().numpy()
+        label_lengths_cpu = label_lengths.detach().cpu().numpy()
+        for i in range(N):
+            from emg2qwerty.data import LabelData
+            target = LabelData.from_labels(labels_cpu[:label_lengths_cpu[i], i])
+            metrics_module.update(prediction=predictions[i], target=target)
+        
+        self.log(f"{stage}/loss", loss, on_step=stage == "train", on_epoch=True, sync_dist=True)
+        for name, value in metrics_module.compute().items():
+            self.log(f"{stage}/{name}", value, on_step=stage == "train", on_epoch=True, sync_dist=True)
+        
+        return loss
+    
+    def training_step(self, batch, batch_idx):
+        return self._step(batch, "train")
+    
+    def validation_step(self, batch, batch_idx):
+        return self._step(batch, "val")
+    
+    def test_step(self, batch, batch_idx):
+        return self._step(batch, "test")
+    
+    def configure_optimizers(self):
+        optimizer = instantiate(self.optimizer, self.parameters())
+        if self.lr_scheduler is not None:
+            scheduler = instantiate(self.lr_scheduler.scheduler, optimizer=optimizer)
+            return {"optimizer": optimizer, "lr_scheduler": scheduler}
+        return optimizer
+
+
+class CNNLSTMCTCModule(pl.LightningModule):
+    """Hybrid CNN+LSTM CTC model for EMG-to-keystroke prediction."""
+    
+    NUM_BANDS: ClassVar[int] = 2
+    
+    def __init__(
+        self,
+        in_features: int,
+        cnn_channels: Sequence[int] = (64, 128),
+        kernel_size: int = 3,
+        lstm_hidden: int = 128,
+        lstm_layers: int = 1,
+        electrode_channels: int = 16,
+        optimizer: DictConfig = None,
+        lr_scheduler: DictConfig = None,
+        decoder: DictConfig = None,
+    ) -> None:
+        super().__init__()
+        self.save_hyperparameters()
+        
+        self.spectrogram_norm = SpectrogramNorm(self.NUM_BANDS * electrode_channels)
+        
+        self.encoder = CNNLSTMEncoder(
+            in_features=in_features,
+            cnn_channels=cnn_channels,
+            kernel_size=kernel_size,
+            hidden_size=lstm_hidden,
+            num_layers=lstm_layers,
+        )
+        
+        output_features = lstm_hidden
+        # Change charset to charset()
+        self.classifier = nn.Linear(lstm_hidden, charset().num_classes)
+        self.ctc_loss = nn.CTCLoss(blank=charset().null_class)
+        
+        self.metrics = nn.ModuleDict({
+            "train_metrics": CharacterErrorRates(),
+            "val_metrics": CharacterErrorRates(),
+            "test_metrics": CharacterErrorRates(),
+        })
+        
+        self.optimizer = optimizer
+        self.lr_scheduler = lr_scheduler
+        # Instantiate decoder from DictConfig
+        self.decoder = instantiate(decoder) if decoder is not None else None
+    
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        x = self.spectrogram_norm(inputs)
+        x = self.encoder(x)
+        return self.classifier(x)
+    
+    def _step(self, batch: dict, stage: str) -> torch.Tensor:
+        emg = batch["inputs"]
+        emg_lengths = batch["input_lengths"]
+        labels = batch["targets"]  # (T, N) - time first, batch second
+        label_lengths = batch["target_lengths"]
+        
+        logits = self(emg)  # (T, N, num_classes)
+        T, N, num_classes = logits.shape
+        
+        log_probs = nn.functional.log_softmax(logits, dim=-1)
+        
+        # CTCLoss expects targets of shape (N, S) where N is batch and S is max target length
+        # But our labels are (T, N), so we need to transpose to (N, T)
+        loss = self.ctc_loss(
+            log_probs,  # (T, N, num_classes)
+            labels.transpose(0, 1),  # (N, T) - transpose for CTCLoss
+            emg_lengths,  # (N,) - input lengths
+            label_lengths,  # (N,) - target lengths
+        )
+        
+        # Compute metrics using the decoder
+        metrics_module = self.metrics[f"{stage}_metrics"]
+        
+        # Decode predictions for metrics
+        predictions = self.decoder.decode_batch(
+            emissions=logits.detach().cpu().numpy(),
+            emission_lengths=emg_lengths.detach().cpu().numpy(),
+        )
+        
+        # Update metrics with predictions and targets
+        labels_cpu = labels.detach().cpu().numpy()
+        label_lengths_cpu = label_lengths.detach().cpu().numpy()
+        for i in range(N):
+            from emg2qwerty.data import LabelData
+            target = LabelData.from_labels(labels_cpu[:label_lengths_cpu[i], i])
+            metrics_module.update(prediction=predictions[i], target=target)
+        
+        self.log(f"{stage}/loss", loss, on_step=stage == "train", on_epoch=True, sync_dist=True)
+        for name, value in metrics_module.compute().items():
+            self.log(f"{stage}/{name}", value, on_step=stage == "train", on_epoch=True, sync_dist=True)
+        
+        return loss
+    
+    def training_step(self, batch, batch_idx):
+        return self._step(batch, "train")
+    
+    def validation_step(self, batch, batch_idx):
+        return self._step(batch, "val")
+    
+    def test_step(self, batch, batch_idx):
+        return self._step(batch, "test")
+    
+    def configure_optimizers(self):
+        optimizer = instantiate(self.optimizer, self.parameters())
+        if self.lr_scheduler is not None:
+            scheduler = instantiate(self.lr_scheduler.scheduler, optimizer=optimizer)
+            return {"optimizer": optimizer, "lr_scheduler": scheduler}
+        return optimizer

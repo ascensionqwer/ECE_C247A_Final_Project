@@ -1,0 +1,42 @@
+# @package _global_
+# LSTM with 4x Downsampling (500Hz effective sampling rate)
+
+module:
+  _target_: emg2qwerty.lightning.LSTMCTCModule
+  in_features: 1056
+  hidden_size: 256
+  num_layers: 2
+  dropout: 0.3
+
+datamodule:
+  _target_: emg2qwerty.lightning.WindowedEMGDataModule
+  window_length: 2000
+  padding: [450, 50]
+
+to_tensor:
+  _target_: emg2qwerty.transforms.ToTensor
+  fields:
+  - emg_left
+  - emg_right
+
+logspec:
+  _target_: emg2qwerty.transforms.LogSpectrogram
+  n_fft: 64
+  hop_length: 16
+
+downsample:
+  _target_: emg2qwerty.transforms.Downsample
+  factor: 4
+
+transforms:
+  train:
+  - ${to_tensor}
+  - ${downsample}
+  - ${logspec}
+  - ${specaug}
+  val:
+  - ${to_tensor}
+  - ${downsample}
+  - ${logspec}
+  test: ${transforms.val}
+
