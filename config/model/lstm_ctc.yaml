@@ -2,11 +2,11 @@
 module:
   _target_: emg2qwerty.lightning.LSTMCTCModule
   in_features: 528  # freq * channels = (n_fft // 2 + 1) * 16
-  mlp_features: [256]
+  mlp_features: [384]
   rnn_hidden_size: 256
-  rnn_num_layers: 1
+  rnn_num_layers: 3
   rnn_bidirectional: true
-  rnn_dropout: 0.1
+  rnn_dropout: 0.2
 
 datamodule:
   _target_: emg2qwerty.lightning.WindowedEMGDataModule

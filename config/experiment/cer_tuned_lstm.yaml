@@ -1,0 +1,15 @@
+# @package _global_
+defaults:
+  - override /model: lstm_ctc
+  - override /transforms: log_spectrogram
+
+batch_size: 32
+
+trainer:
+  max_epochs: 150
+  gradient_clip_val: 1.0
+
+lr_scheduler:
+  scheduler:
+    warmup_epochs: 10
+    eta_min: 1.0e-06
