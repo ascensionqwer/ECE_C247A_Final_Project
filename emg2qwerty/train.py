@@ -54,21 +54,46 @@ def main(config: DictConfig):
         return transforms.Compose([instantiate(cfg) for cfg in configs])
 
     # Instantiate LightningModule
-    log.info(f"Instantiating LightningModule {config.module}")
-    module = instantiate(
-        config.module,
-        optimizer=config.optimizer,
-        lr_scheduler=config.lr_scheduler,
-        decoder=config.decoder,
-        _recursive_=False,
-    )
     if config.checkpoint is not None:
         log.info(f"Loading module from checkpoint {config.checkpoint}")
-        module = module.load_from_checkpoint(
-            config.checkpoint,
+        # Detect model type from checkpoint hyperparameters
+        import torch
+
+        ckpt = torch.load(config.checkpoint, map_location="cpu", weights_only=False)
+        hp = ckpt.get("hyper_parameters", {})
+
+        # Import both module classes
+        from emg2qwerty.lightning import TDSConvCTCModule, TransformerCTCModule
+
+        # Select correct class based on saved hyperparameters
+        if "block_channels" in hp:
+            log.info("Detected TDSConvCTCModule from checkpoint")
+            module = TDSConvCTCModule.load_from_checkpoint(
+                config.checkpoint,
+                optimizer=config.optimizer,
+                lr_scheduler=config.lr_scheduler,
+                decoder=config.decoder,
+            )
+        elif "d_model" in hp:
+            log.info("Detected TransformerCTCModule from checkpoint")
+            module = TransformerCTCModule.load_from_checkpoint(
+                config.checkpoint,
+                optimizer=config.optimizer,
+                lr_scheduler=config.lr_scheduler,
+                decoder=config.decoder,
+            )
+        else:
+            raise ValueError(
+                f"Unknown model type in checkpoint. Keys: {list(hp.keys())}"
+            )
+    else:
+        log.info(f"Instantiating LightningModule {config.module}")
+        module = instantiate(
+            config.module,
             optimizer=config.optimizer,
             lr_scheduler=config.lr_scheduler,
             decoder=config.decoder,
+            _recursive_=False,
         )
 
     # Instantiate LightningDataModule

@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 from collections.abc import Sequence
+import math
 
 import torch
 from torch import nn
@@ -265,9 +266,9 @@ class TDSConvEncoder(nn.Module):
         assert len(block_channels) > 0
         tds_conv_blocks: list[nn.Module] = []
         for channels in block_channels:
-            assert (
-                num_features % channels == 0
-            ), "block_channels must evenly divide num_features"
+            assert num_features % channels == 0, (
+                "block_channels must evenly divide num_features"
+            )
             tds_conv_blocks.extend(
                 [
                     TDSConv2dBlock(channels, num_features // channels, kernel_width),
@@ -278,3 +279,84 @@ class TDSConvEncoder(nn.Module):
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         return self.tds_conv_blocks(inputs)  # (T, N, num_features)
+
+
+class TransformerEncoder(nn.Module):
+    def __init__(
+        self,
+        in_features: int,
+        d_model: int = 256,
+        nhead: int = 4,
+        num_layers: int = 2,
+        dim_feedforward: int = 512,
+        dropout: float = 0.1,
+        pos_encoding: str = "learnable",
+        max_seq_len: int = 2000,
+        pooling_kernel: int = 8,  # Add this - reduces sequence length by 8x
+    ):
+        super().__init__()
+        self.d_model = d_model
+        self.pooling_kernel = pooling_kernel
+
+        # Input projection
+        self.input_proj = nn.Linear(in_features, d_model)
+
+        # Temporal pooling to reduce sequence length (T, N, d_model) -> (T//K, N, d_model)
+        self.pool = nn.AvgPool1d(kernel_size=pooling_kernel, stride=pooling_kernel)
+
+        # Positional encoding
+        if pos_encoding == "learnable":
+            self.pos_encoding = nn.Embedding(max_seq_len, d_model)
+        else:  # sinusoidal
+            self.register_buffer(
+                "pos_encoding", self._create_sinusoidal(max_seq_len, d_model)
+            )
+
+        # Transformer layers
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=d_model,
+            nhead=nhead,
+            dim_feedforward=dim_feedforward,
+            dropout=dropout,
+            batch_first=False,
+        )
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        self.norm = nn.LayerNorm(d_model)
+
+    def _create_sinusoidal(self, max_len: int, d_model: int) -> torch.Tensor:
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(
+            torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)
+        )
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        return pe.unsqueeze(1)  # (max_len, 1, d_model)
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        T, N, _ = inputs.shape
+
+        # Project input
+        x = self.input_proj(inputs)  # (T, N, d_model)
+
+        # Pool to reduce sequence length: (T, N, d_model) -> (N, d_model, T) -> pool -> (N, d_model, T//K) -> (T//K, N, d_model)
+        x = x.permute(1, 2, 0)  # (N, d_model, T)
+        x = self.pool(x)  # (N, d_model, T//K)
+        x = x.permute(2, 0, 1)  # (T//K, N, d_model)
+
+        # Add positional encoding
+        T_pooled = x.shape[0]
+        if isinstance(self.pos_encoding, nn.Embedding):
+            positions = torch.arange(T_pooled, device=x.device)
+            x = x + self.pos_encoding(positions).unsqueeze(1)  # (T//K, N, d_model)
+        else:
+            # Compute sinusoidal encoding on-the-fly for sequences longer than buffer
+            if T_pooled > self.pos_encoding.shape[0]:
+                pe = self._create_sinusoidal(T_pooled, self.d_model).to(x.device)
+                x = x + pe
+            else:
+                x = x + self.pos_encoding[:T_pooled]  # (T//K, N, d_model)
+
+        # Transformer
+        x = self.transformer(x)  # (T//K, N, d_model)
+        return self.norm(x)
