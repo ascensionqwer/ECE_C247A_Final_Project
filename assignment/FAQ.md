@@ -494,3 +494,54 @@ A: You can choose. You don’t have to do data augmentation at all if you don’
 There was an earlier question about this, and you only need to do a few to get full credit for the creativity aspect 
 
 ---
+
+Q: How long is everyone's report (per section)? Is it okay for an approximate split of 1 page for introduction/abstract, 1-2 page on methods, 2 pages on results, and 2 pages for discussion?
+
+A: The report should be "no longer than 7 pages" (assuming you are doing the default project); you can still get full points without using the full budget.
+
+Yes that's probably a good split. Remember that in the project scope there is a lot of points for insight and the "why" for doing certain decisions like model architecture, hyperparam stuff, etc., so my team's discussion is a bit more bolstered to ensure we hit all the main points for our project's directions.
+
+---
+
+Q: Do we need to include the Neurips paper checklist in our report?
+
+A: We just need to follow the style of NeurIPS so everyone has the same font, spacing, etc.
+
+---
+
+Q: Hi, for the structure of report, do we need to create section strictly follow the writeup, or it is okay to create our own sections as long as the content is included.
+
+For example, do we need to have a section named result or it is okay to create sections like data transformation and put result in it?
+
+A1: If you make new sections I would suggest having them be subsections under the structure following from the project specs.
+
+A2: We basically had the main sections and then did subsections like “model architectures” under
+
+---
+
+Q: Do we need to write a conclusion part for the report?
+
+A: The guideline pdf states including results, discussion from your experiments, so our team mostly including numerical analysis in results, and more 'conclusion' like insights in discussion section.
+
+Given the small page limit, I would advise against doing a conclusion and letting the discussion naturally fizzle out into an ending.
+
+---
+
+Q: when comparing different model structures (e.g. CNN and CNN + RNN), is it ok if we have slightly different configurations, e.g. max epochs ( which it may also impact learning rate?
+
+
+Originally I was thinking of say only changing the structure so that we would have a fair comparison~ like holding one fixed and others the same but I assume it would be hard for this case...
+
+A: Yes it is ok to have different configurations to improve model performance. You want to find the ideal configuration for each model. The lack of standardization should be noted though when directly comparing the architectures (ex. saying CNN+RNN as an architecture is better than CNN is not accurate if you are not running it for a standard configuration).
+
+---
+
+Q: In the report, how should we compare different model architectures? My team generally left the preprocessing steps standardized while trying different models, however each team member used different hyperparameters. For example, we tried CNN + GRU and CNN + LSTM, but we did not standardize things like number of hidden layers, kernel sizes, etc. Is it still fair to say one architecture, eg. CNN + GRU, outperformed CNN + LSTM although it may be partially due to the choices of hyperparams?
+
+A: It’s fine to say that a specific configuration (ie architecture + hyper parameters) outperformed another.
+
+But I would caution against blanket statements regarding just the architecture like “CNN + LSTM is better than CNN+gru” because of the lack of standardization.
+
+As long as you elucidate the exact difference in hyper parameters, architectures, etc., you should be fine. The goal is to find the best model, and if that means tuning different ones differently for better solutions, so be it.
+
+---
