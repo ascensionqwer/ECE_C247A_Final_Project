@@ -194,6 +194,29 @@ A & 1 & 66 & 54.61\% & 25.09\% & 28.66\% \\
 
 The ablation confirms that spatial coverage from multiple electrodes matters. Reducing from 16 to 8 channels increases CER by 7.09 percentage points. Further reductions are worse: 4 channels gives 35.34\% CER and a single channel gives 54.61\% CER.
 
+\subsection{Downsampling Ablation}
+
+Table~\ref{tab:downsampling} examines the effect of temporal downsampling on LSTM performance. All experiments use Config. A with batch size 32, maximum 150 epochs, and full 16-channel input.
+
+\begin{table}[h]
+\centering
+\caption{LSTM temporal downsampling ablation (Config. A, 16 channels). Moderate $2\times$ downsampling yields best results.}
+\label{tab:downsampling}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Downsampling} & \textbf{Sample Rate} & \textbf{Test CER} & \textbf{IER} & \textbf{DER} & \textbf{SER} \\
+\midrule
+$2\times$ & 1 kHz & \textbf{15.99\%} & 2.81\% & 1.45\% & 11.74\% \\
+--- & 2 kHz & 17.05\% & 2.83\% & 1.84\% & 12.38\% \\
+$4\times$ & 500 Hz & 19.88\% & 7.48\% & 0.76\% & 11.65\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+$2\times$ downsampling (1 kHz) gives the best CER at 15.99\%, beating $1\times$ (2 kHz) by 1.06 points. At $4\times$ (500 Hz) performance drops to 19.88\% CER with a spike in insertion errors (7.48\% vs 2.81\%).
+
+Moderate downsampling likely helps by smoothing high-frequency noise while keeping enough temporal resolution for keystroke detection. Aggressive downsampling causes the model starts hallucinating characters (hence the high IER). 1 kHz is the best option we found, however the high variance across LSTM runs means this could change with more experiment runs / training.
+
 \section{Discussion}
 
 \subsection{LSTM performance}
