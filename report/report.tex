@@ -152,7 +152,7 @@ Multiple LSTM runs with the same configuration show substantial variance (15.99\
 
 \subsection{Cross-Platform Comparison}
 
-Table~\ref{tab:cross_platform} compares LSTM CTC performance across both configurations using matching settings (batch=32, epochs=150). Note that most Config. A models use the full 2 kHz sampling rate, with only one run using $2\times$ downsampling (2 kHz $\to$ 1 kHz) and another using $4\times$ downsampling (2 kHz $\to$ 500 Hz). Config. B uses the full 2 kHz sampling rate without downsampling.
+Table~\ref{tab:cross_platform} compares LSTM CTC performance across both configurations using matching settings (batch=32, epochs=150).
 
 \begin{table}[h]
 \centering
@@ -210,7 +210,7 @@ GRU consistently underperforms LSTM. On Config. A, LSTM reaches 15.99\% while GR
 
 TDS Conv gives 22.28\% on Config. A and 21.79\% on Config. B, a 0.49 point difference. Both use the full 2 kHz sampling rate. Given the different GPU architectures (Ampere vs Ada Lovelace) and random seeds, this level of agreement is reasonable and suggests TDS Conv results are reproducible across hardware.
 
-GRU shows a larger gap (29.00\% vs 27.04\%), which may indicate it is more sensitive to initialization or subtle numerical differences between platforms. Again, comparisons involving the best Config. A run are confounded by its use of $2\times$ downsampling.
+GRU shows a larger gap (29.00\% vs 27.04\%), which may indicate it is more sensitive to initialization or subtle numerical differences between platforms. 
 
 \subsection{Electrode channel importance}
 
