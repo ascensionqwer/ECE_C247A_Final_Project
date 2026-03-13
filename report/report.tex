@@ -73,7 +73,7 @@ We compare four architectures for sEMG-to-keystroke prediction: TDS Conv CTC, GR
 
 We use the emg2qwerty dataset \citep{sivakumar2024emg2qwertylargedatasetbaselines}, which contains surface electromyography (sEMG) recordings from users touch typing on a QWERTY keyboard. The dataset comprises 1,135 recording sessions spanning 108 users and 346 hours of data. Each session includes 16-channel sEMG recordings from both left and right forearms, sampled at 2 kHz, along with ground-truth keystrokes captured via keylogger.
 
-For this work, we train on a single user to keep the comparison between architectures controlled. We use the default data splits: training sessions for optimization, validation sessions for hyperparameter tuning and early stopping, and test sessions for final evaluation. The sEMG signals come from two Delsys Trigno wireless electrodes per forearm, each with 8 channels (16 total per arm), placed over the flexor and extensor muscle groups.
+For this work, we train on a single user (\#89335547) for all methods. We use the default data splits: training sessions for optimization, validation sessions for hyperparameter tuning and early stopping, and test sessions for final evaluation. The sEMG signals come from two Delsys Trigno wireless electrodes per forearm, each with 8 channels (16 total per arm), placed over the flexor and extensor muscle groups. This ensures we maintain consistency across all methods, while not needing heavy compute requirements required by the full dataset.
 
 \subsection{Preprocessing}
 
@@ -239,8 +239,6 @@ GRU, at 27 to 29\% CER, does not seem competitive under the hyperparameters we t
 \begin{ack}
 This work was completed as part of the ECE C147/247A course project at UCLA.
 \end{ack}
-
-\section*{References}
 
 
 {
