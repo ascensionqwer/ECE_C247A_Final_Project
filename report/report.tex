@@ -226,7 +226,7 @@ Third, we did not tune hyperparameters per architecture. The GRU gap between Con
 
 Fourth, all experiments use single-user data. Whether these architectural rankings hold for cross-user models is unknown.
 
-Fifth, we only used greedy decoding. Beam search with language model rescoring would likely improve absolute numbers but was not tested.
+Fifth, we only used greedy decoding. Beam search with language model rescoring would likely improve absolute numbers but was not tested due to lack of compute / time.
 
 \subsection{Practical implications}
 
@@ -234,7 +234,7 @@ If accuracy is the priority, LSTM with full 16-channel input is the clear winner
 
 For latency-sensitive or edge deployments, TDS Conv is a reasonable alternative at 22\% CER, with the advantage of a purely convolutional architecture that is straightforward to optimize for inference.
 
-GRU, at 27 to 29\% CER, does not seem competitive under the hyperparameters we tested. Cross-configuration comparisons are complicated by the preprocessing differences noted above.
+GRU, at 27 to 29\% CER, does not seem competitive under the hyperparameters we tested. Cross-configuration comparisons are complicated by the preprocessing differences noted above. We need further hyperparameter tweaking for GRU to be competitive.
 
 \begin{ack}
 This work was completed as part of the ECE C147/247A course project at UCLA.
