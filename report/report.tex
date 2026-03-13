@@ -38,11 +38,11 @@
 
 
 \author{%
-  Student A\thanks{} \\
+  Westley Gunawan, Alex Chang, Samyak Kakatur\thanks{} \\
   Department of Electrical and Computer Engineering\\
   University of California, Los Angeles\\
   Los Angeles, CA 90095 \\
-  \texttt{wesleygwn@ucla.edu, ahjcuniv@ucla.edu} \\
+  \texttt{wesleygwn@ucla.edu, ahjcuniv@ucla.edu, skaka008@ucla.edu} \\
 }
 
 
@@ -59,13 +59,13 @@
 
 \section{Introduction}
 
-Surface electromyography (sEMG) records electrical activity from muscles through skin-placed electrodes, offering a non-invasive way to capture muscle signals for human-computer interaction. The forearm is a natural target for sEMG-based typing detection because finger and wrist movements activate distinguishable muscle groups.
+Surface electromyography (sEMG) records electrical activity from muscles through skin-placed electrodes. Because finger and wrist movements activate distinguishable muscle groups in the forearm, sEMG is well-suited for typing detection.
 
 Sivakumar et~al.\ \citep{sivakumar2024emg2qwertylargedatasetbaselines} introduced emg2qwerty, a dataset of 1,135 recording sessions spanning 108 users and 346 hours of 16-channel sEMG recordings with ground-truth keystrokes. The authors provided a Time-Delay Separable Convolution (TDS Conv) baseline trained with Connectionist Temporal Classification (CTC) loss, which handles alignment by marginalizing over all frame-to-character mappings.
 
-The choice of architecture for sequence-to-sequence tasks remains open. Convolutional approaches like TDS Conv capture local temporal patterns efficiently, while recurrent architectures (LSTMs, GRUs) model longer-range dependencies, each with different inductive biases.
+Convolutional approaches like TDS Conv capture local temporal patterns, while recurrent architectures (LSTMs, GRUs) model longer-range dependencies. Which is better for sEMG decoding is not obvious.
 
-This work compares four neural network architectures for sEMG-to-keystroke prediction: TDS Conv CTC, GRU CTC, LSTM CTC, and CNN+RNN CTC. All models use CTC loss and are evaluated on single-user data. We measure performance using character error rate (CER) and error type breakdown. To assess reproducibility and explore architectural variations, we run experiments on two hardware configurations: Config. A (2$\times$RTX 3060, 11 unique model configurations including electrode ablations) and Config. B (RTX 4080, 4 architectures).
+We compare four architectures for sEMG-to-keystroke prediction: TDS Conv CTC, GRU CTC, LSTM CTC, and CNN+RNN CTC. All use CTC loss and are evaluated on single-user data. We report character error rate (CER) and error type breakdown, and run experiments on two hardware configurations: Config. A (2$\times$RTX 3060, 11 configurations including electrode ablations) and Config. B (RTX 4080, 4 architectures).
 
 \section{Methods}
 
@@ -73,47 +73,47 @@ This work compares four neural network architectures for sEMG-to-keystroke predi
 
 We use the emg2qwerty dataset \citep{sivakumar2024emg2qwertylargedatasetbaselines}, which contains surface electromyography (sEMG) recordings from users touch typing on a QWERTY keyboard. The dataset comprises 1,135 recording sessions spanning 108 users and 346 hours of data. Each session includes 16-channel sEMG recordings from both left and right forearms, sampled at 2 kHz, along with ground-truth keystrokes captured via keylogger.
 
-For this work, we focus on single-user training to establish a controlled comparison between architectures. We use the default data splits provided by the dataset: training sessions for model optimization, validation sessions for hyperparameter tuning and early stopping, and test sessions for final evaluation. The sEMG signals are recorded using two Delsys Trigno wireless electrodes placed on each forearm, yielding 16 channels per arm (8 per electrode). The recordings capture muscle activations from flexor and extensor muscle groups involved in finger and wrist movements during typing.
+For this work, we train on a single user to keep the comparison between architectures controlled. We use the default data splits: training sessions for optimization, validation sessions for hyperparameter tuning and early stopping, and test sessions for final evaluation. The sEMG signals come from two Delsys Trigno wireless electrodes per forearm, each with 8 channels (16 total per arm), placed over the flexor and extensor muscle groups.
 
 \subsection{Preprocessing}
 
-The raw sEMG signals undergo several preprocessing steps before being fed to the neural networks. First, the signals are converted from numpy structured arrays to PyTorch tensors, stacking the left and right forearm channels along a band dimension to produce tensors of shape $(T, 2, 16)$, where $T$ is the temporal dimension, 2 represents the two forearm bands, and 16 is the number of electrode channels.
+The raw sEMG signals are preprocessed in several steps. First, signals are converted from numpy structured arrays to PyTorch tensors, stacking left and right forearm channels along a band dimension to produce tensors of shape $(T, 2, 16)$, where $T$ is the temporal dimension, 2 represents the two forearm bands, and 16 is the number of electrode channels.
 
-We compute log-scaled spectrograms from the time-domain signals using Short-Time Fourier Transform (STFT) with an FFT size of 64 (yielding 33 frequency bins) and a hop length of 16 samples. This produces time-frequency representations of shape $(T, 2, 16, 33)$, where the spectrogram is computed independently for each channel. The log transformation ($\log_{10}(x + 10^{-6})$) stabilizes training by compressing the dynamic range of the spectral features.
+We compute log-scaled spectrograms using STFT with FFT size 64 (33 frequency bins) and hop length 16. This produces time-frequency representations of shape $(T, 2, 16, 33)$, computed independently per channel. The log transform ($\log_{10}(x + 10^{-6})$) compresses the dynamic range.
 
 \paragraph{Configuration-Specific Preprocessing.} Most models use the full 2 kHz sampling rate without downsampling. As an experimental variation, two LSTM models on Config. A explore temporal downsampling: one uses $2\times$ downsampling (2 kHz $\to$ 1 kHz) and another uses $4\times$ downsampling (2 kHz $\to$ 500 Hz). All other Config. A models and all Config. B models use the full 2 kHz sampling rate.
 
-During training, we apply data augmentation techniques to improve generalization: random band rotation (shifting electrode channels by $\{-1, 0, 1\}$ positions) to simulate electrode placement variability, temporal alignment jitter (up to 20 samples) between left and right forearm signals, and SpecAugment with time and frequency masking. The models receive 4-second windows (8000 samples at 2 kHz) with 900 ms of past context and 100 ms of future context padding.
+During training, we augment with random band rotation (shifting electrode channels by $\{-1, 0, 1\}$ positions) to simulate electrode placement variability, temporal alignment jitter (up to 20 samples) between left and right forearm signals, and SpecAugment with time and frequency masking. The models receive 4-second windows (8000 samples at 2 kHz) with 900 ms of past context and 100 ms of future context padding.
 
 \subsection{Model Architectures}
 
-We compare four neural network architectures, all trained with Connectionist Temporal Classification (CTC) loss. Each architecture shares a common frontend for feature extraction but differs in its temporal modeling approach.
+We compare four neural network architectures, all trained with CTC loss. They share a common frontend but use different temporal encoders.
 
-\paragraph{TDS Conv CTC.} The baseline architecture uses Time-Delay Separable (TDS) convolutions for temporal modeling. The frontend consists of spectrogram normalization and a multi-band rotation-invariant MLP that processes each forearm band independently before flattening. The TDS encoder comprises 4 convolutional blocks with 24 channels each and a kernel width of 32, yielding a total temporal receptive field of 125 samples. This architecture efficiently captures local temporal patterns while maintaining parameter efficiency through depthwise separable convolutions.
+\paragraph{TDS Conv CTC.} The baseline architecture uses Time-Delay Separable (TDS) convolutions for temporal modeling. The frontend consists of spectrogram normalization and a multi-band rotation-invariant MLP that processes each forearm band independently before flattening. The TDS encoder has 4 convolutional blocks with 24 channels each and kernel width 32, giving a temporal receptive field of 125 samples.
 
-\paragraph{GRU CTC.} This architecture replaces the TDS convolutional encoder with a bidirectional Gated Recurrent Unit (GRU). After the shared frontend (MLP with hidden features), a bidirectional GRU models temporal dependencies. The bidirectional design allows the model to incorporate both past and future context when making predictions at each timestep. Dropout is applied between recurrent layers.
+\paragraph{GRU CTC.} Replaces the TDS encoder with a bidirectional GRU. The shared frontend feeds into a GRU that processes the sequence in both directions, with dropout between layers.
 
-\paragraph{LSTM CTC.} Similar to the GRU variant, this model uses recurrent layers but with Long Short-Term Memory (LSTM) cells. The architecture employs a bidirectional LSTM with dropout. The LSTM's more expressive gating mechanism (input, forget, and output gates) provides greater capacity for modeling complex temporal patterns compared to GRUs.
+\paragraph{LSTM CTC.} Same as GRU but with LSTM cells. The separate input, forget, and output gates give the LSTM more expressiveness than the GRU's two-gate design.
 
-\paragraph{CNN+RNN CTC.} This hybrid architecture combines convolutional feature extraction with recurrent modeling. After the frontend MLP, temporal convolutions extract local features. A bidirectional GRU then models longer-range dependencies. This design aims to leverage the complementary strengths of both architectural paradigms.
+\paragraph{CNN+RNN CTC.} A hybrid: temporal convolutions extract local features after the frontend MLP, then a bidirectional GRU handles longer-range context.
 
 All architectures conclude with a linear layer mapping to the character set (80 classes including letters, digits, punctuation, and special tokens) followed by log-softmax for CTC training.
 
 \subsection{Training Setup}
 
-All models are trained using Connectionist Temporal Classification (CTC) loss, which enables sequence-to-sequence learning without explicit alignment between input frames and output characters. CTC marginalizes over all valid alignments by introducing a blank token and using a dynamic programming algorithm to compute the loss efficiently.
+All models use CTC loss \citep{graves2006connectionist}, which marginalizes over all valid frame-to-character alignments via a blank token and dynamic programming, avoiding the need for explicit alignment labels.
 
-We use the Adam optimizer with a learning rate of $10^{-3}$. The learning rate schedule combines linear warmup over 10 epochs followed by cosine annealing decay to a minimum learning rate of $10^{-6}$. This schedule helps stabilize early training while allowing fine-grained adaptation in later epochs.
+We use the Adam optimizer with a learning rate of $10^{-3}$. The learning rate schedule combines linear warmup over 10 epochs followed by cosine annealing decay to a minimum of $10^{-6}$.
 
 \subsection{Experimental Configurations}
 
-We conduct experiments on two hardware configurations to assess reproducibility:
+We conduct experiments on two hardware configurations:
 
 \textbf{Configuration A:} Batch size 32, maximum 150 epochs, trained on 2$\times$NVIDIA RTX 3060 GPUs (12GB each) via local Jupyter server.
 
 \textbf{Configuration B:} Batch size 32, maximum 150 epochs, trained on a single NVIDIA RTX 4080 GPU.
 
-For evaluation, we use character error rate (CER) computed via the Levenshtein distance between predicted and ground-truth character sequences. We additionally report insertion error rate (IER), deletion error rate (DER), and substitution error rate (SER) to provide fine-grained analysis of model behavior. Greedy decoding is used at test time for all experiments.
+For evaluation, we use character error rate (CER) computed via Levenshtein distance between predicted and ground-truth character sequences. We also report insertion error rate (IER), deletion error rate (DER), and substitution error rate (SER). Greedy decoding is used at test time for all experiments.
 
 \section{Results}
 
@@ -148,7 +148,7 @@ LSTM & A & --- & 1 & 54.61\% & 25.09\% & 0.86\% & 28.66\% \\
 \end{tabular}
 \end{table}
 
-Multiple LSTM runs with the same configuration show substantial variance (15.99\% to 22.52\%), indicating sensitivity to random initialization. The electrode channel ablation study confirms that full 16-channel input is critical for optimal performance.
+Multiple LSTM runs with the same configuration show substantial variance (15.99\% to 22.52\%), which points to sensitivity to random initialization. The electrode channel ablation confirms that full 16-channel input is needed for good performance.
 
 \subsection{Cross-Platform Comparison}
 
@@ -168,7 +168,7 @@ LSTM & B & 18.59\% & 16.97\% & 2.25\% & RTX 4080 \\
 \end{tabular}
 \end{table}
 
-The Config. A LSTM (17.05\%) outperforms the Config. B run (18.59\%) by 1.54 percentage points. This gap may be attributable to random initialization variance or minor implementation differences. Both configurations confirm LSTM as the best-performing architecture.
+The Config. A LSTM (17.05\%) outperforms the Config. B run (18.59\%) by 1.54 percentage points. Given the variance we observe across LSTM runs generally, this gap could be due to random initialization alone. Both configurations rank LSTM as the best architecture.
 
 \subsection{Electrode Channel Ablation}
 
@@ -192,53 +192,49 @@ A & 1 & 66 & 54.61\% & 25.09\% & 28.66\% \\
 \end{tabular}
 \end{table}
 
-The ablation study confirms that spatial information from multiple electrodes is essential. Reducing from 16 to 8 channels increases CER by 7.09 percentage points. Further reductions show catastrophic degradation: 4 channels yields 35.34\% CER and single channel yields 54.61\% CER.
+The ablation confirms that spatial coverage from multiple electrodes matters. Reducing from 16 to 8 channels increases CER by 7.09 percentage points. Further reductions are worse: 4 channels gives 35.34\% CER and a single channel gives 54.61\% CER.
 
 \section{Discussion}
 
-\subsection{LSTM Achieves Best Overall Performance}
+\subsection{LSTM performance}
 
-The LSTM CTC model with full 16-channel input achieves the best overall test CER of 15.99\% on Config. A, outperforming all other configurations by a substantial margin. This result demonstrates that LSTM's more expressive gating mechanism (with separate input, forget, and output gates plus explicit cell state) effectively captures the temporal dependencies in sEMG signals during typing.
+The best test CER we observe is 15.99\%, from an LSTM on Config. A with $2\times$ downsampling. This beats TDS Conv (22.28\%) and GRU (29.00\%) by wide margins, suggesting that LSTM's gating structure, with its explicit cell state, is a better fit for the temporal patterns in sEMG typing data.
 
-The multiple runs of the same LSTM configuration (15.99\%, 19.88\%, 20.36\%, 22.52\%) reveal significant variance from random initialization, with a range of 6.53 percentage points. The best run (15.99\%) substantially outperforms the others, suggesting that careful initialization or multiple restarts may be necessary to achieve optimal LSTM performance.
+That said, repeated runs of the same LSTM configuration produce CERs ranging from 15.99\% to 22.52\%, a spread of 6.53 points. The best run is something of an outlier; multiple restarts seem necessary to reliably get good LSTM results.
 
-\subsection{GRU vs LSTM Analysis}
+\subsection{GRU vs LSTM}
 
-The comparison between GRU and LSTM reveals significant performance differences. On Config. A (most models at full 2 kHz, with one run using $2\times$ downsampling), LSTM achieves 15.99\% while GRU performs poorly at 29.00\%. On Config. B (without downsampling) with matching configuration (batch=32, epochs=150), LSTM achieves 18.59\% while GRU performs worse at 27.04\%.
+GRU consistently underperforms LSTM. On Config. A, LSTM reaches 15.99\% while GRU sits at 29.00\%. On Config. B with matching settings, LSTM gets 18.59\% versus GRU's 27.04\%. The gap is large enough that it is unlikely to be explained by initialization alone; GRU's simpler gating structure may genuinely lack capacity for this task. It is also possible that GRU needs different hyperparameters than what we tried; we did not tune per-architecture. The cross-configuration comparison is confounded by the preprocessing difference in the best Config. A run.
 
-This discrepancy suggests that GRU may require more careful hyperparameter tuning or different initialization strategies to achieve competitive performance. LSTM consistently outperforms GRU across both configurations when using the same configuration. Note that performance comparisons across configurations are confounded by the preprocessing difference for the best Config. A run.
+\subsection{Cross-platform variance}
 
-\subsection{Cross-Platform Variance}
+TDS Conv gives 22.28\% on Config. A and 21.79\% on Config. B, a 0.49 point difference. Both use the full 2 kHz sampling rate. Given the different GPU architectures (Ampere vs Ada Lovelace) and random seeds, this level of agreement is reasonable and suggests TDS Conv results are reproducible across hardware.
 
-The TDS Conv baseline shows a 0.61 percentage point difference between Config. A (22.28\%) and Config. B (22.89\%) configurations. This variance falls within expected experimental bounds given multiple sources of non-determinism: different GPU architectures (Ampere vs Ada Lovelace), random initialization effects. Both use full 2 kHz sampling rate without downsampling.
+GRU shows a larger gap (29.00\% vs 27.04\%), which may indicate it is more sensitive to initialization or subtle numerical differences between platforms. Again, comparisons involving the best Config. A run are confounded by its use of $2\times$ downsampling.
 
-The comparable results confirm that TDS Conv performance is reproducible across hardware platforms. The GRU discrepancy (29.00\% on Config. A vs 27.04\% on Config. B with matching configuration) suggests that some architectures may be more sensitive to hyperparameter choices and initialization. Note that performance comparisons across configurations are confounded by the preprocessing difference for the best Config. A run.
+\subsection{Electrode channel importance}
 
-\subsection{Electrode Channel Importance}
-
-The ablation study demonstrates that spatial information from multiple electrodes is essential for accurate keystroke prediction. The near-linear degradation in performance as channels are reduced suggests that each electrode provides complementary information about muscle activations.
-
-The dramatic increase in insertion error rate (from 3.03\% to 25.09\% when reducing from 16 to 1 channel) indicates that without sufficient spatial resolution, the model becomes highly uncertain and prone to spurious character predictions. This has practical implications for hardware design: fewer electrodes reduce cost and complexity but significantly impact accuracy.
+Performance degrades roughly linearly as electrode channels are removed. The insertion error rate jumps from 2.81\% (16 channels) to 25.09\% (1 channel), meaning the model hallucinates many spurious characters when it lacks spatial resolution. Different finger movements produce muscle activations at different forearm locations, so fewer electrodes means less ability to distinguish between keys. Cheaper electrode arrays with fewer channels will pay a steep accuracy cost.
 
 \subsection{Limitations}
 
-This work has several limitations. First, the cross-configuration comparison is confounded by multiple simultaneous differences (hardware, random seeds, and preprocessing for specific models), making it difficult to isolate the effect of any single factor.
+Several caveats apply. First, the cross-configuration comparison confounds hardware, random seeds, and (for specific models) preprocessing, so we cannot isolate any single factor.
 
-Second, most Config. A models use the full 2 kHz sampling rate, but two LSTM variants explore temporal downsampling (2$\times$ and 4$\times$ respectively). Config. B uses the full 2 kHz sampling rate without downsampling. This makes direct cross-platform performance comparison confounded when comparing the downsampled Config. A runs to Config. B models.
+Second, two LSTM variants on Config. A use temporal downsampling (2$\times$ and 4$\times$), while Config. B uses the full 2 kHz rate. This makes direct cross-platform comparison unreliable when involving those downsampled runs.
 
-Third, we did not conduct systematic hyperparameter tuning. The discrepancy between GRU performance on Config. A (29.00\%) vs Config. B (27.04\%) suggests that hyperparameter choices significantly impact results. A systematic hyperparameter search could improve absolute performance for each architecture.
+Third, we did not tune hyperparameters per architecture. The GRU gap between Config. A (29.00\%) and Config. B (27.04\%) hints that results are sensitive to choices we did not explore systematically.
 
-Fourth, all experiments were conducted on single-user data. The emg2qwerty dataset supports multi-user training, and the generalization of these architectural comparisons to cross-user scenarios is unknown.
+Fourth, all experiments use single-user data. Whether these architectural rankings hold for cross-user models is unknown.
 
-Fifth, we used greedy decoding only. Beam search decoding with language model rescoring could improve absolute performance but was not evaluated.
+Fifth, we only used greedy decoding. Beam search with language model rescoring would likely improve absolute numbers but was not tested.
 
-\subsection{Practical Implications}
+\subsection{Practical implications}
 
-The experimental results suggest different architectures may be preferred depending on application constraints. For accuracy-critical applications where training time is not a primary concern, LSTM CTC with full 16-channel input provides the best test performance (15.99\% on Config. A using $2\times$ downsampling) when properly initialized. However, the high variance across runs (6.53 percentage points) suggests multiple training restarts may be necessary.
+If accuracy is the priority, LSTM with full 16-channel input is the clear winner (15.99\% CER on Config. A with $2\times$ downsampling). The catch is high run-to-run variance; expect to train multiple times and pick the best.
 
-For real-time or resource-constrained applications, TDS Conv offers a good trade-off between accuracy (22.28\% on Config. A at full 2 kHz, 21.79\% on Config. B at full 2 kHz) and inference speed. Its purely convolutional architecture enables efficient GPU utilization and lower latency.
+For latency-sensitive or edge deployments, TDS Conv is a reasonable alternative at 22\% CER, with the advantage of a purely convolutional architecture that is straightforward to optimize for inference.
 
-The GRU performs worse than LSTM across all configurations (27.04-29.00\% CER) and may be more sensitive to hyperparameter choices. Note that performance comparisons between Config. A (with one run using $2\times$ downsampling) and Config. B (without downsampling) are confounded by this preprocessing difference.
+GRU, at 27 to 29\% CER, does not seem competitive under the hyperparameters we tested. Cross-configuration comparisons are complicated by the preprocessing differences noted above.
 
 \begin{ack}
 This work was completed as part of the ECE C147/247A course project at UCLA.
