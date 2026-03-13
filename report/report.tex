@@ -103,7 +103,7 @@ All architectures conclude with a linear layer mapping to the character set (80 
 
 All models use CTC loss \citep{graves2006connectionist}, which marginalizes over all valid frame-to-character alignments via a blank token and dynamic programming, avoiding the need for explicit alignment labels.
 
-We use the Adam optimizer with a learning rate of $10^{-3}$. The learning rate schedule combines linear warmup over 10 epochs followed by cosine annealing decay to a minimum of $10^{-6}$.
+We use the Adam optimizer with a learning rate of $10^{-3}$, linear warmup over 10 epochs, and cosine annealing decay to $10^{-6}$. Batch size 32 fits within 12GB GPU memory while maintaining gradient stability. We train for up to 150 epochs with early stopping (patience 10) on validation loss. These settings were kept consistent across architectures for fair comparison. Our best test CER of 15.99\% improves 47\% over the baseline $\sim$30 CER from the project spec.
 
 \subsection{Experimental Configurations}
 
